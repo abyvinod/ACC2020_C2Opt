@@ -4,4 +4,3 @@ channels:
 dependencies:
   - gurobi=9.0.1=py37_0
   - python=3.7.6=h0371630_2
-prefix: /workspace/Software/anaconda3/envs/congolexamples
