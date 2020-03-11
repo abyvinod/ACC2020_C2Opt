@@ -1,5 +1,13 @@
 # ACC 2020 Convexified contextual optimization for on-the-fly control of smooth systems
 
+---
+**NOTE**
+
+This repository uses a Python module **congol** for constrained global optimization for Lipschitz smooth functions. Please contact the author at [aby.vinod@gmail.com](mailto:aby.vinod@gmail.com) for access to this module (included in this repository as a submodule). This Python module will be released to the public shortly.
+
+---
+
+This repository provides codes to reproduce the figures of the paper.
 - Figure 1
 - Figure 2
 - Empirical comparison of the proposed approach, `C2Opt`, with `SINDYc` and `CGP-UCB`
@@ -10,6 +18,9 @@
 1. Create conda environment via `conda create -n
    congolexamples python=3.7 scipy matplotlib jupyter`
 1. Install `gurobi` via `conda install -c gurobi gurobi`
-1. Install `congol` via `pip install -e .` in the `/congol`
-   directory.
-1. Run `jupyter notebook` and then run the notebook `C2Opt.ipynb`
+    1. Availability of `gurobi` provides for a faster computation. However, 
+       its use requires a license (see https://www.gurobi.com/ for more details). 
+    1. For a GPLv3-based implementation, we have also formulated the problem
+       using `cvxpy` (https://www.cvxpy.org/).
+1. Install `congol` via `cd congol && pip install -e . && cd ..`.
+1. Run `jupyter notebook` and then open the desired notebook.
