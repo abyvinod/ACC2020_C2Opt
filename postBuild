@@ -1,5 +1,9 @@
 set -e          # Do not ignore errors
 
+# Install congol
 cd congol
 pip install -e .
 cd ..
+
+# Install GPyOpt
+pip install gpyopt==1.2.5

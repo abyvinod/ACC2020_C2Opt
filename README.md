@@ -26,4 +26,5 @@ This repository provides codes to reproduce the figures of the paper.
     1. For a GPLv3-based implementation, we have also formulated the problem
        using `cvxpy` (https://www.cvxpy.org/).
 1. Install `congol` via `cd congol && pip install -e . && cd ..`.
+1. Install `gpyopt` via `pip install gpyopt==1.2.5`
 1. Run `jupyter notebook` and then open the desired notebook.
