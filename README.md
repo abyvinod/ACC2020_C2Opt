@@ -1,6 +1,3 @@
-# Convexified contextual optimization for on-the-fly control of smooth systems
-
-
 | Title      | Convexified contextual optimization for on-the-fly control of smooth systems                 |
 |------------|----------------------------------------------------------------------------------------------|
 | Authors    | Abraham P. Vinod, Arie Israel, and Ufuk Topcu                                                |
