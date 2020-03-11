@@ -1,4 +1,10 @@
-# ACC 2020 Convexified contextual optimization for on-the-fly control of smooth systems
+# Convexified contextual optimization for on-the-fly control of smooth systems
+
+
+| Title      | Convexified contextual optimization for on-the-fly control of smooth systems                 |
+|------------|----------------------------------------------------------------------------------------------|
+| Authors    | Abraham P. Vinod & Arie Israel & Ufuk Topcu                                                  |
+| Conference | American Control Conference, 2020                                                            |
 
 ---
 **NOTE**
