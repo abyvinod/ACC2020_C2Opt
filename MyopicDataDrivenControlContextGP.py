@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import congol as cg
 import GPyOpt as gpy
 import time
@@ -11,7 +10,7 @@ class MyopicDataDrivenControlContextGP(cg.SmoothMyopicDataDrivenControl):
 
     def __init__(self, training_data, state_to_context, context_u_lb,
                  context_u_ub, objective, one_step_dyn=None,
-                 exit_condition=None, solver_style='EI'):
+                 exit_condition=None, solver_style='LCB'):
 
         # Unpack training data
         training_trajectory = training_data['trajectory']
@@ -36,9 +35,10 @@ class MyopicDataDrivenControlContextGP(cg.SmoothMyopicDataDrivenControl):
         # Constants
         self.context_arg_dim = training_context_vec.shape[1]
         self.marker_color = 'slategray'
-        self.marker_label = r'$\mathrm{CGP-UCB}$'
+        self.marker_label = r'$\mathrm{CGP-' + self.solver_style + '}$'
         self.marker_type = '+'
         self.zorder = 10
+        self.marker_default_size = 0
 
         # Functions
         self.state_to_context = state_to_context
@@ -48,9 +48,9 @@ class MyopicDataDrivenControlContextGP(cg.SmoothMyopicDataDrivenControl):
 
         # Bayesian optimizer
         # Y must be a 2-D matrix with values arranged along the column
-        self.bo_step = gpy.methods.BayesianOptimization(f=None,
-                domain=self.domain, X=training_context_u_vec,
-                Y=np.array([training_cost]).T, exact_feval=True,
+        self.bo_step = gpy.methods.BayesianOptimization(None, 
+                domain=self.domain, X=training_context_u_vec, 
+                Y=np.array([training_cost]).T, exact_feval=True, 
                 acquisition_type=self.solver_style)
 
     def compute_decision_for_current_context(self, verbose=False):
@@ -89,8 +89,8 @@ class MyopicDataDrivenControlContextGP(cg.SmoothMyopicDataDrivenControl):
         # Update the Bayesian optimizer
         new_X = np.vstack((self.bo_step.X, next_z))
         new_Y = np.vstack((self.bo_step.Y, next_z_cost))
-        self.bo_step = gpy.methods.BayesianOptimization(f=self.objective,
-                domain=self.domain, X=new_X, Y=new_Y, exact_feval=True,
+        self.bo_step = gpy.methods.BayesianOptimization(None,
+                domain=self.domain, X=new_X, Y=new_Y, exact_feval=True, 
                 acquisition_type=self.solver_style)
 
         # Return decision

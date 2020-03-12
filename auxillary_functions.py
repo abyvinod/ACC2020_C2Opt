@@ -1,11 +1,24 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-scatter_size = 8
+skip_marker = 3
+traj_markersize = 30
 fig_fontsize = 10
+fig_fontsize_legend = 9
 fig_dpi = 150
 fig_width = 3.4
 fig_height = 2.8
+
+params = {
+   'axes.labelsize': fig_fontsize,
+   'font.family': 'serif',
+   'font.size': fig_fontsize,
+   'legend.fontsize': fig_fontsize,
+   'xtick.labelsize': fig_fontsize,
+   'ytick.labelsize': fig_fontsize,
+   'mathtext.fontset': 'cm',
+   }
+plt.rcParams.update(params)
 
 def draw_initial_plot(xlim_tup, ylim_tup, target_position, cost_thresh,
                       initial_state, rand_init_traj_vec):
@@ -25,21 +38,21 @@ def draw_initial_plot(xlim_tup, ylim_tup, target_position, cost_thresh,
     plt.grid()
 
     draw_theta = np.linspace(0, 2 * np.pi, 100)         # For plotting circles
-    zorder_init = 1e4                                   # Zorder for plotting
+    zorder_init = 1e0                                   # Zorder for plotting
     
     # Draw contour plots
-    for r in range(1, 20):
-        r_temp = 1 * r
+    for cost_val in (np.arange(1, 10) ** 2):
+        r_temp = np.sqrt(cost_val * 2)
         plt.plot(target_position[0] + r_temp * np.cos(draw_theta),
                  target_position[1] + r_temp * np.sin(draw_theta),
                  color='k', linewidth=1)
         
     # Draw the initial state        
-    plt.scatter(initial_state[0], initial_state[1], scatter_size, marker='o',
-                color='y', label=r'$\mathrm{Initial\ state}$', 
-                zorder=zorder_init)
+    plt.scatter(initial_state[0], initial_state[1], traj_markersize, 
+            marker='d', color='y', label=r'$\mathrm{Initial\ state}$', 
+            zorder=zorder_init + 2)
     
-    plt.scatter(target_position[0], target_position[1], scatter_size,
+    plt.scatter(target_position[0], target_position[1], traj_markersize,
                 marker = '*', color='r', zorder=11, 
                 label=r'$\mathrm{Target\ state}$')
     
@@ -51,8 +64,9 @@ def draw_initial_plot(xlim_tup, ylim_tup, target_position, cost_thresh,
              label=r'$\mathrm{Target\ set}$')
     
     # Draw initial trajectory
-    plt.scatter(rand_init_traj_vec[1:, 0], rand_init_traj_vec[1:, 1], 
-                scatter_size, marker='s', color='b', zorder=zorder_init,
+    plt.scatter(rand_init_traj_vec[1::skip_marker, 0], 
+                rand_init_traj_vec[1::skip_marker, 1], traj_markersize, 
+                marker='s', color='b', zorder=zorder_init, 
                 label=r'$\mathrm{Initial\ data}$')
     
     # Interpolate the data points --- approximation
