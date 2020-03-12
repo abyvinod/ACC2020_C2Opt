@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 scatter_size = 8
 fig_fontsize = 10
 fig_dpi = 150
+fig_width = 3.4
+fig_height = 2.8
 
 def draw_initial_plot(xlim_tup, ylim_tup, target_position, cost_thresh,
                       initial_state, rand_init_traj_vec):
@@ -12,12 +14,13 @@ def draw_initial_plot(xlim_tup, ylim_tup, target_position, cost_thresh,
     data, and the target set
     """
     # Draw the plot
-    fig = plt.figure(dpi=fig_dpi)          #figsize=(5, 2.5), dpi=300)
+    fig = plt.figure(figsize=(fig_width, fig_height), dpi=fig_dpi)
     ax = fig.gca()
     ax.set_aspect('equal')                                 # Equal x and y axis
-    plt.xlabel(r'$\mathrm{x}$', fontsize=fig_fontsize)
-    plt.ylabel(r'$\mathrm{y}$', fontsize=fig_fontsize)
+    plt.xlabel(r'$\mathrm{x}$', fontsize= 1 * fig_fontsize)
+    plt.ylabel(r'$\mathrm{y}$', fontsize= 1 * fig_fontsize)
     ax.set_xlim(xlim_tup)
+    ax.set_xticks(np.round(np.arange(xlim_tup[0], xlim_tup[1] + 1, 2)))
     ax.set_ylim(ylim_tup)
     plt.grid()
 
@@ -36,8 +39,9 @@ def draw_initial_plot(xlim_tup, ylim_tup, target_position, cost_thresh,
                 color='y', label=r'$\mathrm{Initial\ state}$', 
                 zorder=zorder_init)
     
-    # plt.scatter(target_position[0], target_position[1], scatter_size,
-    # marker = '*', color='r', zorder=11, label=r'$\mathrm{Target\ state}$')
+    plt.scatter(target_position[0], target_position[1], scatter_size,
+                marker = '*', color='r', zorder=11, 
+                label=r'$\mathrm{Target\ state}$')
     
     # Draw the acceptable closeness to the target
     dist_thresh = np.sqrt(cost_thresh * 2)
