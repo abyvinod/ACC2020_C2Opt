@@ -34,7 +34,7 @@ class MyopicDataDrivenControlTrue(cg.SmoothMyopicDataDrivenControl):
                                           # returning it
         self.solver_style = solver_style
         self.marker_color = 'deepskyblue'
-        self.marker_label = r'$\mathrm{Optimal\ trajectory}$'
+        self.marker_label = r'$\mathrm{Opt.\ traj.}$'
         self.marker_type = '^'
         self.zorder = 10
         self.marker_default_size = 20

@@ -1,21 +1,21 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-skip_marker = 3
+skip_marker = 1
 traj_markersize = 30
 fig_fontsize = 10
 fig_fontsize_legend = 9
 fig_dpi = 150
 fig_width = 3.4
-fig_height = 2.8
+fig_height = 2.5
 
 params = {
    'axes.labelsize': fig_fontsize,
    'font.family': 'serif',
    'font.size': fig_fontsize,
-   'legend.fontsize': fig_fontsize,
-   'xtick.labelsize': fig_fontsize,
-   'ytick.labelsize': fig_fontsize,
+   'legend.fontsize': fig_fontsize_legend,
+   'xtick.labelsize': fig_fontsize_legend,
+   'ytick.labelsize': fig_fontsize_legend,
    'mathtext.fontset': 'cm',
    }
 plt.rcParams.update(params)
@@ -38,11 +38,10 @@ def draw_initial_plot(xlim_tup, ylim_tup, target_position, cost_thresh,
     plt.grid()
 
     draw_theta = np.linspace(0, 2 * np.pi, 100)         # For plotting circles
-    zorder_init = 1e0                                   # Zorder for plotting
+    zorder_init = 1e4                                   # Zorder for plotting
     
     # Draw contour plots
-    for cost_val in (np.arange(1, 10) ** 2):
-        r_temp = np.sqrt(cost_val * 2)
+    for r_temp in np.arange(1, 20, 1):
         plt.plot(target_position[0] + r_temp * np.cos(draw_theta),
                  target_position[1] + r_temp * np.sin(draw_theta),
                  color='k', linewidth=1)
@@ -51,7 +50,13 @@ def draw_initial_plot(xlim_tup, ylim_tup, target_position, cost_thresh,
     plt.scatter(initial_state[0], initial_state[1], traj_markersize, 
             marker='d', color='y', label=r'$\mathrm{Initial\ state}$', 
             zorder=zorder_init + 2)
-    
+
+    # Draw initial trajectory
+    plt.scatter(rand_init_traj_vec[1::skip_marker, 0],
+                rand_init_traj_vec[1::skip_marker, 1], traj_markersize,
+                marker='s', color='b', zorder=zorder_init,
+                label=r'$\mathrm{Initial\ data}$')
+
     plt.scatter(target_position[0], target_position[1], traj_markersize,
                 marker = '*', color='r', zorder=11, 
                 label=r'$\mathrm{Target\ state}$')
@@ -63,15 +68,9 @@ def draw_initial_plot(xlim_tup, ylim_tup, target_position, cost_thresh,
              color='k', linestyle=':', linewidth=1, zorder=zorder_init,
              label=r'$\mathrm{Target\ set}$')
     
-    # Draw initial trajectory
-    plt.scatter(rand_init_traj_vec[1::skip_marker, 0], 
-                rand_init_traj_vec[1::skip_marker, 1], traj_markersize, 
-                marker='s', color='b', zorder=zorder_init, 
-                label=r'$\mathrm{Initial\ data}$')
-    
     # Interpolate the data points --- approximation
     plt.plot(rand_init_traj_vec[1:, 0], rand_init_traj_vec[1:, 1], color='b')
+    ax.legend(loc='center left', ncol=1, labelspacing=0.25, framealpha=1,
+              bbox_to_anchor=(1.05,0.5))
     plt.tight_layout()
-    ax.legend(loc='upper left', ncol=1, prop={'size': 1 * fig_fontsize}, 
-              labelspacing=0.25, framealpha=1)
     return ax

@@ -3,4 +3,5 @@ channels:
   - http://conda.anaconda.org/gurobi
 dependencies:
   - gurobi=9.0.1=py37_0
-  - python=3.7.6=h0371630_2
+  - python=3.7.6
+  - pandas=1.0.1
