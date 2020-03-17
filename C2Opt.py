@@ -41,6 +41,7 @@
 
 import numpy as np
 
+# Change this to get either of the figures
 figure_3 = False
 
 if figure_3:
@@ -253,9 +254,7 @@ ax = draw_initial_plot(xlim_tup, ylim_tup, target_position, cost_thresh,
 import congol as cg
 
 grad_lips_constant = 1e1                     # Lipschitz constant for the gradient
-solver_style = 'midgap-lp' # -cvxpy          # Solution strategies: 'midgap-lp', 'cm-ncvx', 'midgap-lp-cvxpy'
-                                             # First two requires Gurobi, while `midgap-lp-cvxpy` 
-                                             # only requires CVXPY
+solver_str = 'gurobi'                        # Choose solvers 'gurobi'/'cvxpy'
 
 # Bounds on the context and the input       
 context_u_lb = np.hstack((np.array([xlim_tup[0], ylim_tup[0], -1, -1]), input_lb))
@@ -330,15 +329,15 @@ training_data = {'trajectory': rand_init_traj_vec,
                  'cost_grad': rand_init_cost_grad_vec}
 
 # Provide `congol` all the information available about the problem for C2Opt
-sm_ddc = cg.SmoothMyopicDataDrivenControl(training_data,
-                                         state_to_context, 
-                                         context_u_lb, 
-                                         context_u_ub, 
-                                         first_order_oracle, 
-                                         grad_lips_constant, 
-                                         one_step_dyn=one_step_dyn,
-                                         exit_condition=exit_condition,
-                                         solver_style=solver_style)
+c2opt_ddc = cg.C2Opt(training_data, 
+                  state_to_context, 
+                  context_u_lb, 
+                  context_u_ub, 
+                  first_order_oracle, 
+                  grad_lips_constant, 
+                  one_step_dyn=one_step_dyn,
+                  exit_condition=exit_condition,
+                  solver=solver_str)
 
 ax = draw_initial_plot(xlim_tup, ylim_tup, target_position, cost_thresh,
                        initial_state, rand_init_traj_vec)
@@ -346,27 +345,27 @@ ax = draw_initial_plot(xlim_tup, ylim_tup, target_position, cost_thresh,
 # Compute the solution for max_oracle_calls (time steps) or till exit_condition is true, whichever is earliest
 # Set verbose to true if the evolution of the cost and context is desired
 # Set draw_plots_at_the_end to False if the trajectory evolution is desired
-res_sm_ddc = sm_ddc.solve(max_oracle_calls, ax=ax, draw_plots_at_the_end=True, verbose=True)
+res_c2opt_ddc = c2opt_ddc.solve(max_oracle_calls, ax=ax, draw_plots_at_the_end=True, verbose=True)
 
 
-# ### Retrieve the trajectory and cost information from `sm_ddc` object
+# ### Retrieve the trajectory and cost information from `c2opt_ddc` object
 # 
-# Obtain the resulting sequence of contexts, input sequence, trajectory, and cost vector from `sm_ddc` object.
+# Obtain the resulting sequence of contexts, input sequence, trajectory, and cost vector from `c2opt_ddc` object.
 
 # In[7]:
 
 
 # Retrieve the context vector followed by C2Opt
-context_vec = sm_ddc.contextual_optimizer.objective.arg[:,:sm_ddc.context_arg_dim]
+context_vec = c2opt_ddc.contextual_optimizer.objective.arg[:,:c2opt_ddc.context_arg_dim]
 # Retrieve the input sequence followed by C2Opt
-c2opt_input_vec = sm_ddc.contextual_optimizer.objective.arg[:,sm_ddc.context_arg_dim:]
+c2opt_input_vec = c2opt_ddc.contextual_optimizer.objective.arg[:,c2opt_ddc.context_arg_dim:]
 # Retrieve the trajectory followed by C2Opt
 c2opt_x, c2opt_y, c2opt_sh, c2opt_ch = context_vec.T
 c2opt_traj_vec = np.vstack((c2opt_x, c2opt_y, np.arctan2(c2opt_sh, c2opt_ch))).T
 # Add to the trajectory the last state that caused the exit condition to be true
 c2opt_traj_vec = np.vstack((c2opt_traj_vec, one_step_dyn(c2opt_traj_vec[-1,:], c2opt_input_vec[-1,:])))
 # Retrieve the cost vector achieved by C2Opt
-c2opt_cost_vec = compute_cost(c2opt_traj_vec)    #sm_ddc.contextual_optimizer.objective.fun
+c2opt_cost_vec = compute_cost(c2opt_traj_vec)    #c2opt_ddc.contextual_optimizer.objective.fun
 
 
 # ## Comparison algorithm 1: Optimal trajectory using the knowledge of the true dynamics?
@@ -549,7 +548,7 @@ sindyc_cost_vec = compute_cost(sindyc_traj_vec)       #sindyc_ddc.cost_val_vec
 
 
 t_true_ddc = [t['query_time'] for t in res_true_ddc]
-t_sm_ddc = [t['query_time'] for t in res_sm_ddc]
+t_c2opt_ddc = [t['query_time'] for t in res_c2opt_ddc]
 t_gp_ddc = [t['query_time'] for t in res_gp_ddc]
 t_sindyc_ddc = [t['query_time'] for t in res_sindyc_ddc]
 
@@ -560,13 +559,13 @@ with open(fig_name_prefix + 'compute_time_stats.csv', 'w', newline='') as csvfil
     fieldnames = [' ', 'C2Opt', 'CGP-LCB', 'SINDYc', 'True']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
-    writer.writerow({' ': 'Number of iterations', 'C2Opt': len(t_sm_ddc), 'CGP-LCB': len(t_gp_ddc),
+    writer.writerow({' ': 'Number of iterations', 'C2Opt': len(t_c2opt_ddc), 'CGP-LCB': len(t_gp_ddc),
                      'SINDYc': len(t_sindyc_ddc), 'True': len(t_true_ddc)})
-    writer.writerow({' ': 'Average compute time per iteration', 'C2Opt': np.mean(t_sm_ddc), 
+    writer.writerow({' ': 'Average compute time per iteration', 'C2Opt': np.mean(t_c2opt_ddc), 
                      'CGP-LCB': np.mean(t_gp_ddc), 'SINDYc': np.mean(t_sindyc_ddc), 'True': np.mean(t_true_ddc)})
-    writer.writerow({' ': 'Maximum compute time per iteration', 'C2Opt': np.max(t_sm_ddc), 'CGP-LCB': np.max(t_gp_ddc), 
+    writer.writerow({' ': 'Maximum compute time per iteration', 'C2Opt': np.max(t_c2opt_ddc), 'CGP-LCB': np.max(t_gp_ddc), 
                      'SINDYc': np.max(t_sindyc_ddc), 'True': np.max(t_true_ddc)})
-    writer.writerow({' ': 'Total compute time (all iterations)', 'C2Opt': np.sum(t_sm_ddc), 
+    writer.writerow({' ': 'Total compute time (all iterations)', 'C2Opt': np.sum(t_c2opt_ddc), 
                      'CGP-LCB': np.sum(t_gp_ddc), 'SINDYc': np.sum(t_sindyc_ddc), 'True': np.sum(t_true_ddc)})
 
 compute_time_table = pd.read_csv(fig_name_prefix + 'compute_time_stats.csv')
@@ -581,7 +580,7 @@ print(compute_time_table)
 # 
 # As expected, the knowledge of the true dynamics enables faster arrival at the target set.
 
-# In[20]:
+# In[31]:
 
 
 from matplotlib.ticker import FormatStrFormatter
@@ -617,12 +616,12 @@ if len(res_sindyc_ddc) > 1:
             ms = np.sqrt(traj_markersize), color=sindyc_ddc.marker_color, label=sindyc_ddc.marker_label)
 # C2Opt (first plot interpolates the points, then scatter plot provides the precise locations, and
 # finally the last plot provides the legend)
-plt.plot(c2opt_traj_vec[n_data_max:, 0], c2opt_traj_vec[n_data_max:, 1], color=sm_ddc.marker_color)
+plt.plot(c2opt_traj_vec[n_data_max:, 0], c2opt_traj_vec[n_data_max:, 1], color=c2opt_ddc.marker_color)
 plt.scatter(c2opt_traj_vec[n_data_max::skip_marker, 0], c2opt_traj_vec[n_data_max::skip_marker, 1],
-            traj_markersize, color=sm_ddc.marker_color, marker=sm_ddc.marker_type, 
-            zorder=sm_ddc.zorder)    
-ax.plot(c2opt_traj_vec[-1:, 0], c2opt_traj_vec[-1:, 1],'-' + sm_ddc.marker_type,  
-        ms = np.sqrt(traj_markersize), color=sm_ddc.marker_color, label=sm_ddc.marker_label)
+            traj_markersize, color=c2opt_ddc.marker_color, marker=c2opt_ddc.marker_type, 
+            zorder=c2opt_ddc.zorder)    
+ax.plot(c2opt_traj_vec[-1:, 0], c2opt_traj_vec[-1:, 1],'-' + c2opt_ddc.marker_type,  
+        ms = np.sqrt(traj_markersize), color=c2opt_ddc.marker_color, label=c2opt_ddc.marker_label)
 # Reorder the legend
 handles, labels = plt.gca().get_legend_handles_labels()
 if len(res_sindyc_ddc) > 1:
@@ -633,7 +632,7 @@ ax.legend([handles[idx] for idx in order],[labels[idx] for idx in order],
           ncol=1, labelspacing=0.25, framealpha=1, loc='center left',
           bbox_to_anchor=(1.05, 0.5))
 # plt.tight_layout()
-plt.subplots_adjust(top=0.85, bottom=0.25, left=0.0, right=0.80, hspace=0.0, wspace=0.0)
+plt.subplots_adjust(top=0.85, bottom=0.25, left=-0.25, right=1, hspace=0.0, wspace=0.0)
 plt.savefig(fig_name_prefix + 'Trajectory.svg', transparent=True)
 plt.savefig(fig_name_prefix + 'Trajectory.png', dpi=300)
 
@@ -659,13 +658,13 @@ if len(res_sindyc_ddc) > 1:
              linestyle = ':', linewidth=cost_linewidth, ms = cost_markersize, color=sindyc_ddc.marker_color, 
              label=sindyc_ddc.marker_label)
 # C2Opt
-plt.plot(range(n_data_max-1, len(c2opt_cost_vec)), c2opt_cost_vec[n_data_max-1:], marker = sm_ddc.marker_type, 
-         linestyle = ':', linewidth=cost_linewidth, ms = cost_markersize, color=sm_ddc.marker_color, 
-         label=sm_ddc.marker_label)
+plt.plot(range(n_data_max-1, len(c2opt_cost_vec)), c2opt_cost_vec[n_data_max-1:], marker = c2opt_ddc.marker_type, 
+         linestyle = ':', linewidth=cost_linewidth, ms = cost_markersize, color=c2opt_ddc.marker_color, 
+         label=c2opt_ddc.marker_label)
 plt.xlabel(r'$\mathrm{Time\ step} $', fontsize = fig_fontsize)
-plt.ylabel(r'$\mathrm{Distance\ to\ target}$', fontsize = fig_fontsize)
+plt.ylabel(r'$\mathrm{Cost\ }C(x_t, u_t^\dagger)$', fontsize = fig_fontsize)
 max_y = np.round(max([max(opt_cost_vec), max(gpyopt_cost_vec), max(c2opt_cost_vec)])) * 1.2
-compute_time_x_max = np.max([len(res_sm_ddc), len(res_gp_ddc), len(res_sindyc_ddc)]) + n_data_max + 1
+compute_time_x_max = np.max([len(res_c2opt_ddc), len(res_gp_ddc), len(res_sindyc_ddc)]) + n_data_max + 1
 ax.set_ylim([0, max_y])
 ax.set_xlim([0, max([len(opt_cost_vec), len(gpyopt_cost_vec), len(c2opt_cost_vec)]) + 1])
 plt.yticks(np.linspace(0, max_y, 5))
@@ -686,9 +685,9 @@ fig_height_scaling = 1/2
 fig = plt.figure(figsize=(fig_width, fig_height * fig_height_scaling), dpi=fig_dpi)
 ax = fig.gca()
 if len(res_sindyc_ddc) > 1:
-    compute_time_y_max = np.max(np.hstack((t_true_ddc, t_sm_ddc, t_sindyc_ddc, t_gp_ddc))) * 1.1
+    compute_time_y_max = np.max(np.hstack((t_true_ddc, t_c2opt_ddc, t_sindyc_ddc, t_gp_ddc))) * 1.1
 else:
-    compute_time_y_max = np.max(np.hstack((t_true_ddc, t_sm_ddc, t_gp_ddc))) * 1.1
+    compute_time_y_max = np.max(np.hstack((t_true_ddc, t_c2opt_ddc, t_gp_ddc))) * 1.1
 ax.scatter(range(n_data_max, len(res_true_ddc)+n_data_max), t_true_ddc, color=true_ddc.marker_color, 
            marker=true_ddc.marker_type, label=true_ddc.marker_label,zorder=10)
 ax.scatter(range(n_data_max, len(res_gp_ddc)+n_data_max), t_gp_ddc, color=gp_ddc.marker_color, 
@@ -696,8 +695,8 @@ ax.scatter(range(n_data_max, len(res_gp_ddc)+n_data_max), t_gp_ddc, color=gp_ddc
 if len(res_sindyc_ddc) > 1:
     ax.scatter(range(n_data_max, len(res_sindyc_ddc)+n_data_max), t_sindyc_ddc, color=sindyc_ddc.marker_color, 
                marker=sindyc_ddc.marker_type, label=sindyc_ddc.marker_label,zorder=10)
-ax.scatter(range(n_data_max, len(res_sm_ddc)+n_data_max), t_sm_ddc, color=sm_ddc.marker_color, 
-           marker=sm_ddc.marker_type, label=sm_ddc.marker_label)
+ax.scatter(range(n_data_max, len(res_c2opt_ddc)+n_data_max), t_c2opt_ddc, color=c2opt_ddc.marker_color, 
+           marker=c2opt_ddc.marker_type, label=c2opt_ddc.marker_label)
 # ax.set_yscale('log')
 plt.xlim([n_data_max, compute_time_x_max])
 plt.ylim([0, compute_time_y_max])
@@ -714,4 +713,4 @@ else:
     plt.xticks(np.arange(0, compute_time_x_max, 20))
 plt.savefig(fig_name_prefix + 'ComputeTime.svg', transparent=True)
 plt.savefig(fig_name_prefix + 'ComputeTime.png', dpi=300)
-# plt.show()
+

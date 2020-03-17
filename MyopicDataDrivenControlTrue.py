@@ -1,18 +1,19 @@
 import numpy as np
 import scipy.optimize as spo
-import congol as cg
+from MyopicDataDrivenControl import MyopicDataDrivenControl
 import time
 
-class MyopicDataDrivenControlTrue(cg.SmoothMyopicDataDrivenControl):
-    '''
+
+class MyopicDataDrivenControlTrue(MyopicDataDrivenControl):
+    """
     Use scipy.optimize for one-step optimal control
-    '''
+    """
 
     def __init__(self, training_data, input_lb, input_ub, objective,  
             one_step_dyn=None, exit_condition=None, solver_style='L-BFGS-B'):
         """
         Based on 
-        https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html, 
+        https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html,
         we use L-BFGS-B, the recommended approach for bound minimization
 
         self.trajectory excludes the current state
@@ -25,34 +26,26 @@ class MyopicDataDrivenControlTrue(cg.SmoothMyopicDataDrivenControl):
 
         # Bounds
         self.bounds = spo.Bounds(input_lb, input_ub)
-
-        # Current state
-        self.current_state = self.trajectory[-1:, :]
-
-        # Constants
-        self.context_arg_dim = 0          # Context is exactly the state, so not
-                                          # returning it
         self.solver_style = solver_style
-        self.marker_color = 'deepskyblue'
-        self.marker_label = r'$\mathrm{Opt.\ traj.}$'
-        self.marker_type = '^'
-        self.zorder = 10
-        self.marker_default_size = 20
 
         # Functions
         self.objective = objective
-        self.exit_condition = exit_condition
-        self.one_step_dyn = one_step_dyn
 
-    def compute_decision_for_current_context(self, verbose=False):
+        MyopicDataDrivenControl.__init__(self, exit_condition=exit_condition,
+            one_step_dyn=one_step_dyn, current_state=self.trajectory[-1, None],
+            marker_type='^', marker_color='deepskyblue',
+            method_name='Opt.\ traj.', marker_default_size=20)
+
+    def compute_decision_for_current_state(self, verbose=False):
         """
-        1. Get the decision for the current context (current state)
+        1. Get the decision for the current state
         2. Use scipy.optimize to compute the best control action
         3. Return the decision
         """
 
+        # Alternative initial action guess
+        #   np.mean(np.vstack((self.bounds.lb, self.bounds.ub)), axis=0)
         initial_action = self.bounds.lb
-            # np.mean(np.vstack((self.bounds.lb, self.bounds.ub)), axis=0)
         if verbose:
             print('Current state: {:s} | Initial action guess: {:s}'.format(
                 np.array_str(self.current_state, precision=2), 

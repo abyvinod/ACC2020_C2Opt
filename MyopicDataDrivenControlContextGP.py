@@ -1,12 +1,13 @@
 import numpy as np
-import congol as cg
+from MyopicDataDrivenControl import MyopicDataDrivenControl
 import GPyOpt as gpy
 import time
 
-class MyopicDataDrivenControlContextGP(cg.SmoothMyopicDataDrivenControl):
-    '''
+
+class MyopicDataDrivenControlContextGP(MyopicDataDrivenControl):
+    """
     Use contextual Gaussian Process for one-step control
-    '''
+    """
 
     def __init__(self, training_data, state_to_context, context_u_lb,
                  context_u_ub, objective, one_step_dyn=None,
@@ -22,29 +23,18 @@ class MyopicDataDrivenControlContextGP(cg.SmoothMyopicDataDrivenControl):
                                             training_input_seq))
 
         # Domain definition
-        self.domain = [{'name': 'var_'+ str(indx), 'type': 'continuous', 
+        self.domain = [{'name': 'var_' + str(indx), 'type': 'continuous',
                         'domain': (lb, ub)} 
                        for indx, lb, ub in zip(range(context_u_lb.size),
                             context_u_lb, context_u_ub)]
 
-        # Current state and context
-        self.current_state = training_trajectory[-1, None]
+        # Current context
         self.current_context = None
         self.solver_style = solver_style
-
-        # Constants
-        self.context_arg_dim = training_context_vec.shape[1]
-        self.marker_color = 'slategray'
-        self.marker_label = r'$\mathrm{CGP-' + self.solver_style + '}$'
-        self.marker_type = '+'
-        self.zorder = 10
-        self.marker_default_size = 0
 
         # Functions
         self.state_to_context = state_to_context
         self.objective = objective
-        self.exit_condition = exit_condition
-        self.one_step_dyn = one_step_dyn
 
         # Bayesian optimizer
         # Y must be a 2-D matrix with values arranged along the column
@@ -53,7 +43,14 @@ class MyopicDataDrivenControlContextGP(cg.SmoothMyopicDataDrivenControl):
                 Y=np.array([training_cost]).T, exact_feval=True, 
                 acquisition_type=self.solver_style)
 
-    def compute_decision_for_current_context(self, verbose=False):
+        # Constants
+        MyopicDataDrivenControl.__init__(self, exit_condition=exit_condition,
+            one_step_dyn=one_step_dyn,
+            current_state=training_trajectory[-1, None],
+            context_arg_dim=training_context_vec.shape[1],  marker_type='+',
+            marker_color='slategray', method_name='CGP-' + self.solver_style)
+
+    def compute_decision_for_current_state(self, verbose=False):
         """
         1. Obtain the current context from the current state
         2. Get the decision for the current context
@@ -66,7 +63,7 @@ class MyopicDataDrivenControlContextGP(cg.SmoothMyopicDataDrivenControl):
         if verbose:
             print('Current context: {:s}'.format(np.array_str(context_vec, 
                                                               precision=2)))
-        self.current_context = {'var_'+ str(indx): context_vec[0, indx] 
+        self.current_context = {'var_' + str(indx): context_vec[0, indx]
                 for indx in range(self.context_arg_dim)}
 
         # Get the next decision for the next context
@@ -84,7 +81,7 @@ class MyopicDataDrivenControlContextGP(cg.SmoothMyopicDataDrivenControl):
                                 self.bo_step.acquisition_optimizer_type))
             print('z_query = {:s} | Cost estimate = {:1.4f} | Time = '
                   '{:1.4f} s '.format(np.array_str(next_z, precision=2),
-                                      next_z_cost[0,0], query_time))
+                                      next_z_cost[0, 0], query_time))
 
         # Update the Bayesian optimizer
         new_X = np.vstack((self.bo_step.X, next_z))
@@ -95,6 +92,6 @@ class MyopicDataDrivenControlContextGP(cg.SmoothMyopicDataDrivenControl):
 
         # Return decision
         solution_dict = {'next_query': next_z,
-                         'lb_opt_val': next_z_cost[0,0],
+                         'lb_opt_val': next_z_cost[0, 0],
                          'query_time': query_time}
         return solution_dict

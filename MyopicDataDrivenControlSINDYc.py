@@ -1,10 +1,10 @@
 import numpy as np
 import cvxpy as cp
-import congol as cg
+from MyopicDataDrivenControl import MyopicDataDrivenControl
 import time
 
 
-class MyopicDataDrivenControlSINDYc(cg.SmoothMyopicDataDrivenControl):
+class MyopicDataDrivenControlSINDYc(MyopicDataDrivenControl):
     """
     Use SINDYc for system identification followed by one-step optimal control
     """
@@ -25,22 +25,12 @@ class MyopicDataDrivenControlSINDYc(cg.SmoothMyopicDataDrivenControl):
         self.input_lb = input_lb
         self.input_ub = input_ub
 
-        # Current state
-        self.current_state = self.trajectory[-1:, :]
-
-        # Constants
-        self.context_arg_dim = 0          # Context is exactly the state, so not
-                                          # returning it
-        self.marker_color = 'magenta'
-        self.marker_label = r'$\mathrm{SINDYc}$'
-        self.marker_type = 'v'
-        self.zorder = 10
-        self.marker_default_size = 0
-
         # Functions
         self.cvxpy_objective = cvxpy_objective
-        self.exit_condition = exit_condition
-        self.one_step_dyn = one_step_dyn
+
+        MyopicDataDrivenControl.__init__(self, exit_condition=exit_condition,
+            one_step_dyn=one_step_dyn, current_state=self.trajectory[-1, None],
+            marker_type='v', marker_color='magenta', method_name='SINDYc')
 
         # Uses sparse_thresh to declare if a coeff is zero or non-zero
         self.sparse_thresh = 1e-3
@@ -56,9 +46,9 @@ class MyopicDataDrivenControlSINDYc(cg.SmoothMyopicDataDrivenControl):
         self.scaling_sparse_max = 1e5
         self.scaling_sparse_min = 1e-6
 
-    def compute_decision_for_current_context(self, verbose=False):
+    def compute_decision_for_current_state(self, verbose=False):
         """
-        1. Get the decision for the current context (current state)
+        1. Get the decision for the current state
             a. Get the SINDYc coefficients for the dynamics
             b. Do the computation
         2. Use scipy.optimize to compute the best control action
@@ -106,7 +96,7 @@ class MyopicDataDrivenControlSINDYc(cg.SmoothMyopicDataDrivenControl):
         if prob.status in ['optimal', 'optimal_inaccurate']:
             current_decision = np.array([current_action.value])
         else:
-            raise RuntimeError('compute_decision_for_current_context failed'
+            raise RuntimeError('compute_decision_for_current_state failed'
                     ' with CVXPY status: {:s}'.format(prob.status))
 
         query_timer_end = time.time()
