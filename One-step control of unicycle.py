@@ -254,7 +254,7 @@ ax = draw_initial_plot(xlim_tup, ylim_tup, target_position, cost_thresh,
 import congol as cg
 
 grad_lips_constant = 1e1                     # Lipschitz constant for the gradient
-solver_str = 'cvxpy'                         # Choose solvers 'gurobi'/'cvxpy'
+solver_str = 'gurobi'                        # Choose solvers 'gurobi'/'cvxpy'
 
 # Bounds on the context and the input       
 context_u_lb = np.hstack((np.array([xlim_tup[0], ylim_tup[0], -1, -1]), input_lb))
@@ -497,7 +497,7 @@ gpyopt_cost_vec = compute_cost(gpyopt_traj_vec)    #gp_ddc.bo_step.Y[:, 0]
 # was utilized for myopic data-driven control
 from MyopicDataDrivenControlSINDYc import MyopicDataDrivenControlSINDYc
 
-cvxpy_args = {'solver':'ECOS'}
+cvxpy_args = {'solver':'GUROBI'}                # 'ECOS'/'GUROBI'/'OSQP'/'SCS'
 
 # Training data packaged for CGP-LCB
 training_data = {'trajectory': rand_init_traj_vec,
@@ -708,9 +708,9 @@ plt.grid()
 ax.legend(ncol=1, labelspacing=0.25, framealpha=1, loc='center left', bbox_to_anchor=(1.05, 0.5))
 plt.subplots_adjust(top=0.82, bottom=0.33, left=0.18, right=0.62, hspace=0.0, wspace=0.0)
 if figure_3:
-    plt.xticks(np.arange(n_data_max, compute_time_x_max, 10))
+    plt.xticks(np.arange(n_data_max, compute_time_x_max+1, 10))
 else:
-    plt.xticks(np.arange(0, compute_time_x_max, 20))
+    plt.xticks(np.arange(0, compute_time_x_max+1, 20))
 plt.savefig(fig_name_prefix + 'ComputeTime.svg', transparent=True)
 plt.savefig(fig_name_prefix + 'ComputeTime.png', dpi=300)
 
