@@ -42,7 +42,7 @@
 import numpy as np
 
 # Change this to get either of the figures
-figure_3 = False
+figure_3 = True
 
 if figure_3:
     # Initial data point
@@ -232,7 +232,7 @@ import matplotlib.pyplot as plt
 # get_ipython().run_line_magic('matplotlib', 'inline')
 
 # Import plotting functions
-from auxillary_functions import *
+from MyopicDataDrivenControl_aux import *
 
 ax = draw_initial_plot(xlim_tup, ylim_tup, target_position, cost_thresh,
                        initial_state, rand_init_traj_vec)
@@ -254,7 +254,7 @@ ax = draw_initial_plot(xlim_tup, ylim_tup, target_position, cost_thresh,
 import congol as cg
 
 grad_lips_constant = 1e1                     # Lipschitz constant for the gradient
-solver_str = 'gurobi'                        # Choose solvers 'gurobi'/'cvxpy'
+solver_str = 'cvxpy'                         # Choose solvers 'gurobi'/'cvxpy'
 
 # Bounds on the context and the input       
 context_u_lb = np.hstack((np.array([xlim_tup[0], ylim_tup[0], -1, -1]), input_lb))
@@ -580,7 +580,7 @@ print(compute_time_table)
 # 
 # As expected, the knowledge of the true dynamics enables faster arrival at the target set.
 
-# In[31]:
+# In[15]:
 
 
 from matplotlib.ticker import FormatStrFormatter

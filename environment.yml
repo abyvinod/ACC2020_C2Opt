@@ -5,3 +5,4 @@ dependencies:
   - gurobi=9.0.1=py37_0
   - python=3.7.6
   - pandas=1.0.1
+  - tqdm=4.43.0
