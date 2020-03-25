@@ -68,12 +68,8 @@ class MyopicDataDrivenControlTrue(MyopicDataDrivenControl):
                                                    precision=2),
                       res.fun[0], query_time))
 
-        # Get the next state
-        self.current_state = self.one_step_dyn(self.current_state, 
-                                               current_decision)
-
         # Update the data matrices
-        self.trajectory = np.vstack((self.trajectory, self.current_state))
+        # self.trajectory is updated in self.solve() function
         self.input_seq = np.vstack((self.input_seq, res.x))
         self.cost_val_vec = np.hstack((self.cost_val_vec, res.fun))
 

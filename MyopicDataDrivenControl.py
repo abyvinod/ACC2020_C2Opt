@@ -80,6 +80,10 @@ class MyopicDataDrivenControl:
             past_input = current_decision               # Make it 2D
             self.current_state = self.one_step_dyn(past_state, past_input)
 
+            if hasattr(self, 'trajectory'):
+                self.trajectory = np.vstack((self.trajectory, 
+                                             self.current_state))
+
             # If plotting is required
             if ax is not None:
                 ax.scatter(self.current_state[0, 0],

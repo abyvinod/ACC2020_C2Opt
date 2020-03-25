@@ -46,7 +46,8 @@ class MyopicDataDrivenControlSINDYc(MyopicDataDrivenControl):
         self.scaling_sparse_max = 1e5
         self.scaling_sparse_min = 1e-6
 
-    def compute_decision_for_current_state(self, verbose=False):
+    def compute_decision_for_current_state(self, verbose=False, 
+                                           fixed_control_horizon=1):
         """
         1. Get the decision for the current state
             a. Get the SINDYc coefficients for the dynamics
@@ -66,6 +67,9 @@ class MyopicDataDrivenControlSINDYc(MyopicDataDrivenControl):
         coeff_state, coeff_input = self.compute_sindyc_coeff()
 
         # Compute the sublibrary for dynamics
+        for _ in range(fixed_control_horizon):
+            self.current_state = self.one_step_dyn(self.current_state, 
+                                                   self.input_seq[-1, None])
         L_x = self.evaluate_sub_library_at_state(self.current_state)
 
         # One-step optimal control: Solve
@@ -109,12 +113,8 @@ class MyopicDataDrivenControlSINDYc(MyopicDataDrivenControl):
                                                    precision=2),
                       prob.value, query_time))
 
-        # Get the next state
-        self.current_state = self.one_step_dyn(self.current_state, 
-                                               current_decision)
-
         # Update the data matrices
-        self.trajectory = np.vstack((self.trajectory, self.current_state))
+        # self.trajectory is updated in self.solve() function
         self.input_seq = np.vstack((self.input_seq, current_decision))
         self.cost_val_vec = np.hstack((self.cost_val_vec, prob.value))
 
