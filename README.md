@@ -3,18 +3,6 @@
 | Authors    | Abraham P. Vinod, Arie Israel, and Ufuk Topcu                                                |
 | Conference | American Control Conference, 2020                                                            |
 
----
-**NOTE**
-
-This repository uses a Python module **congol** for
-constrained global optimization for Lipschitz smooth
-functions. Please contact the author at
-[aby.vinod@gmail.com](mailto:aby.vinod@gmail.com) for access
-to this module (included in this repository as a submodule).
-This Python module will be released to the public shortly.
-
----
-
 This repository provides codes to reproduce the figures of the paper.
 - Correct-by-construction approximation bounds under
   smoothness, convexity, and monotonicity
