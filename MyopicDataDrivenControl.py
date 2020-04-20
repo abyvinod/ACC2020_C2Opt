@@ -5,8 +5,8 @@ import traceback                    # For displaying caught exceptions
 
 class MyopicDataDrivenControl:
     """
-    Base class for one-step myopic control. This script is taken congol Python
-    module available at https://github.com/abyvinod/congol
+    Base class for one-step myopic control. This script is taken coveropt Python
+    module available at https://github.com/abyvinod/coveropt
 
     Each subclass should populate its function
     compute_decision_for_current_state

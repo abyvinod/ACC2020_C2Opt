@@ -1,7 +1,7 @@
 set -e          # Do not ignore errors
 
-# Install congol
-cd congol
+# Install coveropt
+cd coveropt
 pip install -e .
 cd ..
 

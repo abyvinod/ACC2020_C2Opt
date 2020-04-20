@@ -5,7 +5,7 @@
 
 
 import numpy as np
-import congol as cg
+import coveropt as co
 from BoundsWithSideInfo import BoundsWithSideInfo
 import time as time
 import matplotlib.pyplot as plt

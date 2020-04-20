@@ -1,4 +1,4 @@
-name: congolexamples
+name: acc2020_c2opt
 channels:
   - http://conda.anaconda.org/gurobi
 dependencies:

@@ -1,12 +1,12 @@
 import cvxpy as cp
-import congol as cg
+import coveropt as co
 import numpy as np
 import multiprocessing as mp
 import tqdm as tq
 import time as time
 
 
-class BoundsWithSideInfo(cg.LipSmoothFun):
+class BoundsWithSideInfo(co.LipSmoothFun):
     """
     Generate bounds on a function
     """
@@ -18,7 +18,7 @@ class BoundsWithSideInfo(cg.LipSmoothFun):
         self.is_monotone_dec = kwargs.pop('is_monotone_dec', False)
         self.fun_ub = kwargs.pop('fun_ub', None)
         self.fun_lb = kwargs.pop('fun_lb', None)
-        cg.LipSmoothFun.__init__(self, *args, **kwargs)
+        co.LipSmoothFun.__init__(self, *args, **kwargs)
         if self.arg_dim != 1:
             raise ValueError('Expected 1-dimensional function')
         # Overwrite the CVXPY problems
@@ -52,13 +52,13 @@ class BoundsWithSideInfo(cg.LipSmoothFun):
 
     def get_lower_bound_pcon(self, arg_test_vec):
         """
-        Use cg.LipSmoothFun.get_pwq_lower_normalized to obtain the matrices
+        Use co.LipSmoothFun.get_pwq_lower_normalized to obtain the matrices
         """
         return self.evaluate_minorant(arg_test_vec, is_convex=self.is_convex)
 
     def get_upper_bound_pcvx(self, arg_test_vec):
         """
-        Use cg.LipSmoothFun.get_pwq_upper_normalized to obtain the matrices
+        Use co.LipSmoothFun.get_pwq_upper_normalized to obtain the matrices
         """
         return self.evaluate_majorant(arg_test_vec, is_concave=self.is_concave)
 

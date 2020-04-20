@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# # Smooth myopic data-driven control (C2Opt) using `congol`
+# # Smooth myopic data-driven control (C2Opt) using `coveropt`
 # 
 # We demonstrate a novel framework for on-the-fly control of autonomous systems with unknown dynamics using limited data. It utilizes unique sequential optimization algorithms for constrained global optimization. This approach can enable the post-catastrophe recovery of an autonomous system using data collected less than a few seconds long (a single finite-horizon trajectory).
 # 
@@ -242,16 +242,16 @@ ax = draw_initial_plot(xlim_tup, ylim_tup, target_position, cost_thresh,
 # 
 # This completes the problem formulation. We seek one-step controllers that minimize the compute_cost, evaluated at the *unknown* next state, at each iteration. The *unknown* next state is a function of the *known* current state, and the current input, where the latter is the decision variable.
 # 
-# ## Proposed approach: `C2Opt` via `congol`
+# ## Proposed approach: `C2Opt` via `coveropt`
 # 
-# We utilize `SmoothMyopicDataDrivenControl` class provided by `congol` to perform `C2Opt`. Here, we utilize the smoothness of the unknown one-step cost function $C$ to propose minimizers at each step.
+# We utilize `SmoothMyopicDataDrivenControl` class provided by `coveropt` to perform `C2Opt`. Here, we utilize the smoothness of the unknown one-step cost function $C$ to propose minimizers at each step.
 # 
 # We define the **first-order oracle** that evaluates the cost $C$ given a context and input, together denoted by $z\in\mathbb{R}^6$ and computes the gradient  $\nabla C$ with respect to $z$.
 
 # In[6]:
 
 
-import congol as cg
+import coveropt as co
 
 grad_lips_constant = 1e1                     # Lipschitz constant for the gradient
 solver_str = 'gurobi'                        # Choose solvers 'gurobi'/'cvxpy'
@@ -328,8 +328,8 @@ training_data = {'trajectory': rand_init_traj_vec,
                  'cost_val': rand_init_cost_val_vec,
                  'cost_grad': rand_init_cost_grad_vec}
 
-# Provide `congol` all the information available about the problem for C2Opt
-c2opt_ddc = cg.C2Opt(training_data, 
+# Provide `coveropt` all the information available about the problem for C2Opt
+c2opt_ddc = co.C2Opt(training_data,
                   state_to_context, 
                   context_u_lb, 
                   context_u_ub, 

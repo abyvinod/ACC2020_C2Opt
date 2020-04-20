@@ -35,8 +35,8 @@ exact environment used for developing and testing this code.
     - `$ pip install cvxpy gpyopt==1.2.5`
     - Free software alternative to `gurobi` (See www.cvxpy.org 
       for more details)
-1. Install `congol` 
-    - `$ cd congol && pip install -e . && cd ..`
+1. Install `coveropt` 
+    - `$ cd coveropt && pip install -e . && cd ..`
 1. Run `$ jupyter notebook` and then open the desired
    notebook.
 
@@ -48,10 +48,10 @@ exact environment used for developing and testing this code.
    information.ipynb` or `Approximation bounds via side
    information.py` generates Figures 1 and 2
     - `BoundsWithSideInfo.py` provides the class that uses
-      `congol/congol/classes/LipSmoothFun.py` to implement
+      `coveropt/coveropt/classes/LipSmoothFun.py` to implement
       the correct-by-construction bounds
 1. `One-step control of unicycle.ipynb` or `One-step control of
-   unicycle.py` generates Figures 1 and 2
+   unicycle.py` generates Figures 3 and 4
     - `MyopicDataDrivenControl.py` provides the base class
       for one-step control of unknown dynamics
     - `MyopicDataDrivenControlSINDYc.py` implements the
@@ -74,7 +74,7 @@ exact environment used for developing and testing this code.
       solution --- the optimal one-step trajectory under the
       knowledge of the dynamics. It uses `scipy.optimize` to
       solve the one-step receding horizon control problem.
-    - `congol/congol/classes/applications/C2Opt/` implements
+    - `coveropt/coveropt/classes/applications/C2Opt/` implements
       the proposed `C2Opt` method.
 
 # Contact 
