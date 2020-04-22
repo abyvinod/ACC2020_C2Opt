@@ -35,7 +35,7 @@ exact environment used for developing and testing this code.
     - `$ pip install cvxpy gpyopt==1.2.5`
     - Free software alternative to `gurobi` (See www.cvxpy.org 
       for more details)
-1. Install `coveropt` 
+1. Install `coveropt` (v0.1)
     - `$ cd coveropt && pip install -e . && cd ..`
 1. Run `$ jupyter notebook` and then open the desired
    notebook.
