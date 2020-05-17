@@ -75,8 +75,8 @@ input_ub = np.array([v_max, w_max])
 sampling_time = 0.1                          
 
 # Parameters for sequential control
-max_oracle_calls = 200                       # Maximum number of time steps
-time_horizon = n_data_max + max_oracle_calls # Total max. number of time steps
+max_oracle_calls = 200                         # Maximum number of time steps
+time_horizon = n_data_max + max_oracle_calls   # Total max. number of time steps
 
 # For repeatability
 np.random.seed(1)
@@ -645,20 +645,21 @@ ax = fig.gca()
 plt.plot(rand_init_cost_val_vec, marker = 's', linestyle = ':', linewidth=cost_linewidth, 
          ms = cost_markersize * 2/3, color='b', label=r'$\mathrm{Initial\ data}$')
 # Optimal trajectory
-plt.plot(range(n_data_max-1, len(opt_cost_vec)), opt_cost_vec[n_data_max-1:], marker = true_ddc.marker_type, 
+plt.plot(range(n_data_max, len(opt_cost_vec)+1), opt_cost_vec[n_data_max-1:],
+         marker = true_ddc.marker_type,
          linestyle = ':', linewidth=cost_linewidth, ms = cost_markersize, color=true_ddc.marker_color, 
          label=true_ddc.marker_label)
 # GPyOpt
-plt.plot(range(n_data_max-1, len(gpyopt_cost_vec)), gpyopt_cost_vec[n_data_max-1:], marker = gp_ddc.marker_type, 
+plt.plot(range(n_data_max, len(gpyopt_cost_vec)), gpyopt_cost_vec[n_data_max:], marker = gp_ddc.marker_type,
          linestyle = ':', linewidth=cost_linewidth, ms = cost_markersize, color=gp_ddc.marker_color, 
          label=gp_ddc.marker_label)
 # SINDYc
 if len(res_sindyc_ddc) > 1:
-    plt.plot(range(n_data_max-1, len(sindyc_cost_vec)), sindyc_cost_vec[n_data_max-1:], marker = sindyc_ddc.marker_type, 
+    plt.plot(range(n_data_max, len(sindyc_cost_vec)), sindyc_cost_vec[n_data_max:], marker = sindyc_ddc.marker_type,
              linestyle = ':', linewidth=cost_linewidth, ms = cost_markersize, color=sindyc_ddc.marker_color, 
              label=sindyc_ddc.marker_label)
 # C2Opt
-plt.plot(range(n_data_max-1, len(c2opt_cost_vec)), c2opt_cost_vec[n_data_max-1:], marker = c2opt_ddc.marker_type, 
+plt.plot(range(n_data_max, len(c2opt_cost_vec)), c2opt_cost_vec[n_data_max:], marker = c2opt_ddc.marker_type,
          linestyle = ':', linewidth=cost_linewidth, ms = cost_markersize, color=c2opt_ddc.marker_color, 
          label=c2opt_ddc.marker_label)
 plt.xlabel(r'$\mathrm{Time\ step} $', fontsize = fig_fontsize)
@@ -698,7 +699,6 @@ if len(res_sindyc_ddc) > 1:
 ax.scatter(range(n_data_max, len(res_c2opt_ddc)+n_data_max), t_c2opt_ddc, color=c2opt_ddc.marker_color, 
            marker=c2opt_ddc.marker_type, label=c2opt_ddc.marker_label)
 # ax.set_yscale('log')
-plt.xlim([n_data_max, compute_time_x_max])
 plt.ylim([0, compute_time_y_max])
 plt.yticks(10*np.linspace(0, compute_time_y_max, 4)/10)
 ax.yaxis.set_major_formatter(FormatStrFormatter('%1.2f'))
@@ -709,8 +709,10 @@ ax.legend(ncol=1, labelspacing=0.25, framealpha=1, loc='center left', bbox_to_an
 plt.subplots_adjust(top=0.82, bottom=0.33, left=0.18, right=0.62, hspace=0.0, wspace=0.0)
 if figure_3:
     plt.xticks(np.arange(n_data_max, compute_time_x_max+1, 10))
+    plt.xlim([n_data_max, compute_time_x_max])
 else:
     plt.xticks(np.arange(0, compute_time_x_max+1, 20))
+    plt.xlim([0, compute_time_x_max+1])
 plt.savefig(fig_name_prefix + 'ComputeTime.svg', transparent=True)
 plt.savefig(fig_name_prefix + 'ComputeTime.png', dpi=300)
 
