@@ -18,15 +18,16 @@ This repository provides codes to reproduce the figures of the paper.
 
 ## Reproducibility instructions
 
-Use `$ conda env create -f conda_env_for_acc2020.yml` to get the 
-exact environment used for developing and testing this code.
+Use `$ conda env create -f conda_env_for_acc2020.yml` to get the exact
+environment used for developing and testing this code. Please perform step 4
+below to install `coveropt`.
 
 ### Step-by-step guide
 
 1. Create conda environment
     - `$ conda create -n acc2020_c2opt python=3.7 scipy matplotlib 
     jupyter tqdm pandas`
-1. Install `gurobi`
+1. (**optional**) Install `gurobi`
     - `$ conda install -c gurobi gurobi`
     - Availability of `gurobi` provides for a faster
       computation. However, its use requires a license (see
